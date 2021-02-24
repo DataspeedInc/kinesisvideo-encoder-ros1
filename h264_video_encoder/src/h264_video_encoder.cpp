@@ -107,7 +107,8 @@ void ImageCallback(const sensor_msgs::ImageConstPtr & msg, const H264Encoder * e
   ++frame_num;
 }
 
-void InitializeCommunication(ros::NodeHandle & nh,
+void InitializeCommunication(ros::NodeHandle & n,
+                             ros::NodeHandle & pn,
                              ros::Subscriber& metadata_sub,
                              image_transport::Subscriber& image_sub,
                              ros::Publisher& pub,
@@ -123,7 +124,7 @@ void InitializeCommunication(ros::NodeHandle & nh,
   GetH264EncoderNodeParams(param_reader, params);
 
 
-  pub = nh.advertise<kinesis_video_msgs::KinesisVideoFrame>(params.publication_topic,
+  pub = n.advertise<kinesis_video_msgs::KinesisVideoFrame>(params.publication_topic,
                                                             params.queue_size);
 
   //
@@ -143,7 +144,7 @@ void InitializeCommunication(ros::NodeHandle & nh,
     }
   };
 
-  image_transport::ImageTransport it(nh);
+  image_transport::ImageTransport it(n);
   image_sub =
     it.subscribe(params.subscription_topic, params.queue_size, image_callback);
   AWS_LOGSTREAM_INFO(__func__, "subscribed to " << params.subscription_topic << "...");
@@ -154,14 +155,15 @@ void InitializeCommunication(ros::NodeHandle & nh,
     metadata.metadata.insert(metadata.metadata.end(), msg->metadata.begin(), msg->metadata.end());
   };
   metadata_sub =
-    nh.subscribe(params.metadata_topic, params.queue_size, metadata_callback);
+    n.subscribe(params.metadata_topic, params.queue_size, metadata_callback);
   AWS_LOGSTREAM_INFO(__func__, "subscribed to " << params.metadata_topic << " for metadata...");
 }
 
 AwsError RunEncoderNode(int argc, char ** argv)
 {
   ros::init(argc, argv, "h264_video_encoder");
-  ros::NodeHandle nh("~");
+  ros::NodeHandle n("");
+  ros::NodeHandle pn("~");
   
   Aws::Utils::Logging::InitializeAWSLogging(
     Aws::MakeShared<Aws::Utils::Logging::AWSROSLogger>("h264_video_encoder"));
@@ -175,7 +177,7 @@ AwsError RunEncoderNode(int argc, char ** argv)
   kinesis_video_msgs::KinesisImageMetadata metadata;
   Aws::Client::Ros1NodeParameterReader param_reader;
 
-  InitializeCommunication(nh, metadata_sub, image_sub, pub,
+  InitializeCommunication(n, pn, metadata_sub, image_sub, pub,
                           encoder, frame_num, metadata, param_reader);
   
   //
