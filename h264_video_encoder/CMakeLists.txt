@@ -38,28 +38,50 @@ set(h264_video_encoder_LIBS
   aws_common
 )
 
+set(h264_video_decoder_SRCS
+  src/h264_video_decoder.cpp
+)
+set(h264_video_decoder_INCS
+  include
+  ${aws_common_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
+)
+set(h264_video_decoder_LIBS
+  ${catkin_LIBRARIES}
+  aws_common
+)
+
 # add the publisher example
-add_executable(${PROJECT_NAME} src/main.cpp ${h264_video_encoder_SRCS})
+add_executable(${PROJECT_NAME} src/encoder_main.cpp ${h264_video_encoder_SRCS})
+add_executable(h264_video_decoder src/decoder_main.cpp ${h264_video_decoder_SRCS})
 add_library(${PROJECT_NAME}_lib STATIC ${h264_video_encoder_SRCS})
+add_library(h264_video_decoder_lib STATIC ${h264_video_decoder_SRCS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${h264_video_encoder_INCS})
+target_include_directories(h264_video_decoder PRIVATE ${h264_video_decoder_INCS})
 target_include_directories(${PROJECT_NAME}_lib PUBLIC ${h264_video_encoder_INCS})
+target_include_directories(h264_video_decoder_lib PUBLIC ${h264_video_encoder_INCS})
 
 target_link_libraries(${PROJECT_NAME} ${h264_video_encoder_LIBS})
 target_link_libraries(${PROJECT_NAME}_lib ${h264_video_encoder_LIBS})
+target_link_libraries(h264_video_decoder ${h264_video_decoder_LIBS})
+target_link_libraries(h264_video_decoder_lib ${h264_video_decoder_LIBS})
 
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
-
+add_dependencies(h264_video_decoder
+  ${catkin_EXPORTED_TARGETS}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 
 #############
 ## Install ##
 #############
 
 # Mark executables and/or libraries for installation
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} h264_video_decoder
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
