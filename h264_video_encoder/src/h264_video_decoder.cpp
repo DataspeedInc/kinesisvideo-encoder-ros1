@@ -88,12 +88,17 @@ void ImageCallback(const kinesis_video_msgs::KinesisVideoFrameConstPtr & msg, co
     return;
   }
   uint64_t stamp_us = 0;
-  std::for_each(msg->metadata.begin(), msg->metadata.end(), [&stamp_us](const diagnostic_msgs::KeyValue& kv) {
+  std::string frame_id = "";
+  std::for_each(msg->metadata.begin(), msg->metadata.end(), [&stamp_us, &frame_id](
+                const diagnostic_msgs::KeyValue& kv) {
     if (kv.key == "stamp_us") {
       stamp_us = std::stoul(kv.value);
+    } else if (kv.key == "frame_id") {
+      frame_id = kv.value;
     }
   });
   output_frame.header.stamp.fromNSec(stamp_us * 1000);
+  output_frame.header.frame_id = frame_id;
   output_frame.encoding = sensor_msgs::image_encodings::BGR8;
   output_frame.height = decoder_output.height;
   output_frame.width = decoder_output.width;
