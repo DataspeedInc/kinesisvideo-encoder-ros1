@@ -43,7 +43,8 @@ const std::map<std::string, AVPixelFormat> SNSR_IMG_ENC_to_LIBAV_PIXEL_FRMT = {
   {sensor_msgs::image_encodings::RGB8, AV_PIX_FMT_RGB24},
   {sensor_msgs::image_encodings::BGR8, AV_PIX_FMT_BGR24},
   {sensor_msgs::image_encodings::RGBA8, AV_PIX_FMT_RGBA},
-  {sensor_msgs::image_encodings::BGRA8, AV_PIX_FMT_BGRA}};
+  {sensor_msgs::image_encodings::BGRA8, AV_PIX_FMT_BGRA},
+  {sensor_msgs::image_encodings::MONO8, AV_PIX_FMT_GRAY8}};
 
 /**
  * Initialize the H264Encoder
